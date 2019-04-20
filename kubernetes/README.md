@@ -1,5 +1,44 @@
 # Desafio 02: Kubernetes
 
+## Requisitos
+
+Para executar a resolução deste desafio você precisará de um cluster Kubernetes. A opção mais simples é instalar o [minikube](https://github.com/kubernetes/minikube) seguindo [essas](https://kubernetes.io/docs/tasks/tools/install-minikube/) instruções. Executadas corretamentes as instruções, você também instalará na sua máquina o [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/). Inicie então o cluster com o comando:
+
+```shell
+minikube start
+```
+
+Confira se seu cluster está pronto executando:
+
+```shell
+kubectl get nodes
+```
+
+Você deverá obter algo assim:
+
+```shell
+NAME       STATUS   ROLES    AGE    VERSION
+minikube   Ready    master   2m3s   v1.14.0
+```
+
+## Construindo a imagem Docker
+
+Como estamos utilizando minikube, se a imagem for construída na máquina _host_, ela terá que ser transferida para dentro da VM do minikube de alguma maneira. Isso pode ser feito enviando para um _registry_ remoto acessível pela VM. Outra opção, é construir a imagem dentro da VM do minikube. Para fazer isso, dentro da pasta raíz deste repositório execute:
+
+```shell
+minikube mount `pwd`:/develop
+```
+
+Em outro terminal, entre na VM e acesse a pasta montada com os arquivos do repositório. Por fim, construa a imagem:
+
+```shell
+minikube ssh
+cd /develop/kubernetes
+docker build . -f Dockerfile -t greeter-app
+```
+
+# Descrição
+
 ## Motivação
 
 Kubernetes atualmente é a principal ferramenta de orquestração e _deployment_ de _containers_ utilizado no mundo, práticamente tornando-se um padrão para abstração de recursos de infraestrutura. 
