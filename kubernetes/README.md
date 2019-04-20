@@ -16,6 +16,12 @@ NAME       STATUS   ROLES    AGE    VERSION
 minikube   Ready    master   2m3s   v1.14.0
 ```
 
+Além disso, você poderá escolher por fazer o deploy da sua aplicação utilizando o [HELM](https://helm.sh). Se assim preferir, siga as [instruções](https://helm.sh/docs/using_helm/#installing-the-helm-client) de instalação e depois execute o comando abaixo. Este comando iniciará o _Tiller_, o servidor do HELM que se comunica com o cluster. Mais detalhes de como instalar o _Tiller_ podem ser encontrador [aqui](https://helm.sh/docs/using_helm/#installing-tiller).
+
+```shell
+$ helm init
+```
+
 ## Construindo a imagem Docker
 
 Como estamos utilizando minikube, se a imagem for construída na máquina _host_, ela terá que ser transferida para dentro da VM do minikube de alguma maneira. Isso pode ser feito enviando para um _registry_ remoto acessível pela VM. Outra opção, é construir a imagem dentro da VM do minikube. Para fazer isso, dentro da pasta raíz deste repositório execute:
@@ -34,11 +40,24 @@ $ docker build . -f Dockerfile -t greeter-app
 
 ## Configuração do _Ingress Controller_
 
-Antes de fazer o _deploy_ da aplicação, é necessário adicionar ao cluster um _ingress controller_. Para isso, foi escolhido o [nginx](https://github.com/kubernetes/ingress-nginx). Esse processo pode ser feito aplicando o manifesto `manifests/nginx.yaml`.
+Antes de fazer o _deploy_ da aplicação, é necessário adicionar ao cluster um _ingress controller_. Para isso, foi escolhido o [nginx](https://github.com/kubernetes/ingress-nginx). Esse processo pode ser feito aplicando um manifesto ou utilizando o HELM. Escolha a opção que preferir e execute os comandos dentro da pasta `kubernetes`.
 
-Para isso, execute o seguinte comando de dentro da pasta `kubernetes`:
+* ### k8s-manifests
+
 ```shell
 $ kubectl apply -f manifests/nginx.yaml
+```
+
+* ### helm
+
+```shell
+$ helm install stable/nginx-ingress -f helm-values/nginx.yaml  --version 0.23.0 --namespace ingress-nginx --name apps-ingress
+```
+
+Devido a uma inconsistência da [documentação](https://kubernetes.github.io/ingress-nginx/deploy/baremetal/#via-the-host-network) do nginx com os manifestos que são gerados, o serviço criado para o _ingress controller_ deve ser deletado. Mais detalhes [aqui](#observações).
+
+```shell
+$ kubectl get svc -n ingress-nginx -o name | grep controller | xargs kubectl delete -n ingress-nginx
 ```
 
 ## Fazendo o _deploy_ da aplicação
