@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: greeter-app
+  namespace: greeter-app-ns
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: greeter-app
+    spec:
+      containers:
+        - name: app
+          image: greeter-app:latest
+          imagePullPolicy: Never
+          env:
+            - name: NAME
+              value: "Felippe Mendonça"
+          ports:
+          - name: http
+            containerPort: 3000
+          resources:
+            limits:
+              cpu: 100m
+              memory: 64Mi
