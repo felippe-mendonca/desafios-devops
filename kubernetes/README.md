@@ -51,7 +51,7 @@ $ kubectl apply -f manifests/nginx.yaml
 * ### helm
 
 ```shell
-$ helm install stable/nginx-ingress -f helm-values/nginx.yaml  --version 0.23.0 --namespace ingress-nginx --name apps-ingress
+$ helm install stable/nginx-ingress -f helm-values/nginx.yaml  --version 1.5.0 --namespace ingress-nginx --name apps-ingress
 ```
 
 Devido a uma inconsistência da [documentação](https://kubernetes.github.io/ingress-nginx/deploy/baremetal/#via-the-host-network) do nginx com os manifestos que são gerados, o serviço criado para o _ingress controller_ deve ser deletado. Mais detalhes [aqui](#observações).
