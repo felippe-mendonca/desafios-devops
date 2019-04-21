@@ -1,0 +1,10 @@
+
+candidateName: "Felippe Mendonça"
+image:
+  pullPolice: Never
+resources: {
+  limits: {
+    cpu: 100m,
+    memory: 64Mi
+  }
+}
