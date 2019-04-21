@@ -62,16 +62,18 @@ $ kubectl get svc -n ingress-nginx -o name | grep controller | xargs kubectl del
 
 ## Fazendo o _deploy_ da aplicação
 
-Dentro da pasta `kubernetes`, execute o script:
+Escolha o método que preferir e execute o comando dentro da pasta `kubernetes`:
+
+* ### k8s-manifests
 
 ```shell
-$ ./run.sh
+$ ./scripts/run-manifests.bash
 ```
 
-E para remover todos os recursos criados pelo comando anteior:
+* ### helm
 
 ```shell
-$ ./run.sh delete
+$ ./scripts/run-helm.bash
 ```
 
 ## Testando a aplicação
@@ -83,7 +85,7 @@ $ minikube ip
 192.168.99.100
 ```
 
-E então:
+E então execute:
 
 ```shell
 $ curl http://192.168.99.100/greeter
@@ -96,7 +98,7 @@ Para simular uma falha do serviço, execute:
 $ curl http://192.168.99.100/greeter/make-unhealthy
 ```
 
-E então monitore o estado do _Pod_. Você observará que ele será reiniciado. 
+E então monitore o estado do _Pod_. Você observará que ele será reiniciado.
 
 ```shell
 $ kubectl get pods -n greeter-app-ns
@@ -104,9 +106,23 @@ NAME                           READY   STATUS    RESTARTS   AGE
 greeter-app-5b5677b566-d2xm2   1/1     Running   1          4m
 ```
 
-## Observações
+## Removendo a aplicação
 
-- No manifesto _deployment.yaml_, a política para dar _pull_ na imagem (_imagePullPolicy_) foi configurada como _Never_ apenas por que a imagem foi construída localmente. Em ambientes de produção esta configuração não faz sentido. (Mais detalhes sobre esta política [aqui](https://kubernetes.io/docs/concepts/configuration/overview/#container-images).
+Dependendo do método que escolheu para fazer o _deploy_, execute o comando abaixo para remover a aplicação e todos seus recursos criados.
+
+* ### k8s-manifests
+
+```shell
+$ ./scripts/run-manifests.bash delete
+```
+
+* ### helm
+
+```shell
+$ ./scripts/run-helm.bash delete
+```
+
+## Observações
 
 - O manifesto `manifests/nginx.yaml` foi adaptado do [repositório](https://github.com/kubernetes/ingress-nginx/blob/nginx-0.24.1/deploy/mandatory.yaml) oficial. As mudanças realizadas estão abaixo. Tais mudanças foram baseadas na [documentação](https://kubernetes.github.io/ingress-nginx/deploy/baremetal/#via-the-host-network) do nginx, para a configuração utilizando em _clusters bar-metal_. Foi escolhida a configuração via _host network_ por se julgar como a mais próxima de um ambiente de nuvem, uma vez que o contêiner que o controlador do nginx fica no _namespace_ de rede do _host_, sendo assim possível acessá-lo através de um IP diferente dos internos ao cluster.
 
@@ -139,7 +155,12 @@ greeter-app-5b5677b566-d2xm2   1/1     Running   1          4m
 
 ```
 
+- Ao se configurar o _ingress controller_ utilizando o HELM, foi removido o serviço criado associado ao controlador após a instalação, devido a uma [recomendação](https://kubernetes.github.io/ingress-nginx/deploy/baremetal/#via-the-host-network) da documentação do nginx ao se fazer a instalação via _host network_. Este problema também foi reportado nesta [_issue_](https://github.com/helm/charts/issues/10921).
+
 - Foram adicionadas duas rotas na aplicação `app.js`. Uma para a checagem do estado do serviço, `/healthz`, e a segunda para forçar que o serviço apresente um estado que indique um problema, `/make-unhealthy`. Isso foi feito apenas para testar o _health check_ do _Pod_ criado. Em ambientes de produção essas checagens podem incluir, por exemplo, a verificação se um banco de dados está acessível.
+
+- Tanto no manifesto _deployment.yaml_ quanto no arquivo de configuração _greeter-app-values.yaml_, a política para dar _pull_ na imagem (_imagePullPolicy_) foi configurada como _Never_. Isso por que a imagem foi construída localmente e não foi enviada para um _registry_. Em ambientes de produção esta configuração não faz sentido. (Mais detalhes sobre esta política [aqui](https://kubernetes.io/docs/concepts/configuration/overview/#container-images)).
+
 
 
 # Descrição
