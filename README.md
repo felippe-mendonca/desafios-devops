@@ -2,8 +2,8 @@
 
 Aqui estão os desafios para a primeira fase de testes de candidatos da IDwall para às vagas de **Site Reliability Engineer / DevOps**.
 
-1. [Terraform/IaC](https://github.com/idwall/desafios-devops/tree/master/terraform)
-2. [Kubernetes](https://github.com/idwall/desafios-devops/tree/master/kubernetes)
+1. [Terraform/IaC](https://github.com/felippe-mendonca/desafios-devops/tree/master/terraform)
+2. [Kubernetes](https://github.com/felippe-mendonca/desafios-devops/tree/master/kubernetes)
 
 Não há diferença de testes para diferentes níveis de profissionais, porém ambos os testes serão avaliados com diferentes critérios, dependendo do perfil da vaga.
 

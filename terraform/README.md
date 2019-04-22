@@ -2,11 +2,11 @@
 
 ## Requisitos
 
-Para executar a resolução deste desafio, você precisará instalar o Terraform. Para isso, basta seguir [essas](https://learn.hashicorp.com/terraform/getting-started/install#installing-terraform) instruções.
+Para executar a resolução deste desafio, você precisará instalar o Terraform. Para isso, basta seguir [essas](https://learn.hashicorp.com/terraform/getting-started/install#installing-terraform) instruções. A versão utilizada foi a `v0.11.13`.
 
 A AWS foi a escolhida e você precisará de uma chave de acesso para que o Terraform possa interagir com os serviços providos. Siga [essas](https://aws.amazon.com/pt/blogs/security/wheres-my-secret-access-key/) instruções para obter a chave. Além disso, leia [este](https://aws.amazon.com/pt/blogs/security/a-new-and-standardized-way-to-manage-credentials-in-the-aws-sdks/) guia para saber como gerenciar suas chaves.
 
-Além disso, será necessário um par de chaves cadastrado na região em que será criada a instância. Siga as instruções [deste](https://docs.aws.amazon.com/pt_br/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws) caso você precise gerar e/ou importar suas chaves. É importante que a chave privada esteja na sua máquina em um caminho conhecido, pois esta será utilizada durante o processo de provisinamento.
+Além disso, será necessário um par de chaves cadastrado na região em que será criada a instância. Siga [essas](https://docs.aws.amazon.com/pt_br/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws) instruções caso você precise gerar e/ou importar suas chaves. É importante que a chave privada esteja na sua máquina em um caminho conhecido, pois esta será utilizada durante o processo de provisinamento.
 
 ## Criando sua instância
 
@@ -16,20 +16,27 @@ Dentro do diretório `terraform` deste repositório, execute:
 $ terraform init
 ```
 
-Este comando inicializará módulos e _plug-ins_ necessários para sua execução. Agora, execute o comando abaixo para verificar quais serão as mudanças necessárias para realizar este provisionamento. Nesse momento serão pedidas variáveis de entrada que não possuem valores definidos por padrão. Recomenda-se por salvar a saída deste comando em um arquivo, como mostrado no comando abaixo, para que seja utiliazado posteriormente.
+Este comando inicializará módulos e _plug-ins_ necessários para sua execução. Na próxima etapa serão pedidas variáveis de entrada que não possuem valores definidos por padrão. Recomenda-se que estas variáveis de entradas sejam colocadas em um arquivo com o nome de `terraform.tfvars` como o exemplo abaixo. O Terraform irá carregá-las automaticamente em todos os comandos que precisarem destas variáveis. Observe que a variável `ssh-ip-range` é uma lista, e esta foi definida com um endereço de IP com bloco CIDR `/32`, ou seja, apenas o _host_ com este endereço poderá acessar a instância via ssh. Se preferir, você pode definir um _range_ de endereços utilizando um bloco CIDR diferente de `/32`, ou ainda colocar uma lista de endereços e/ou _ranges_.
 
+```
+aws-region   = "us-east-1"
+ssh-ip-range = ["200.137.67.10/32"]
+key-name     = "my_keypair"
+```
+
+Agora, execute o comando abaixo para verificar quais serão as mudanças necessárias para realizar este provisionamento. Recomenda-se por salvar a saída deste comando em um arquivo, como mostrado no comando abaixo, para que seja utiliazado posteriormente.
 
 ```shell
 $ terraform plan -out out.tfplan
 ```
 
-Agora basta executar o comando abaixo para aplicar as mudanças:
+Agora basta executar o seguinte comando para aplicar as mudanças:
 
 ```shell
 $ terraform apply "out.tfplan"
 ```
 
-Ao final da execução será imprimido na tela o IP público desta instância. Caso queira consultá-lo posteriormente, basta executar:
+Ao final será imprimido na tela o IP público desta instância. Caso queira consultá-lo posteriormente, basta executar:
 
 ```shell
 $ terraform output my-instance-ip
@@ -37,7 +44,7 @@ $ terraform output my-instance-ip
 
 ## Testando a instância
 
-Junto com a criação da instância, foi instalado nela o docker uma imagem do Apache foi executada. De posse do ip público, acesse o _browser_ ou execute o comando abaixo para ver o conteúdo da página padrão.
+Junto com a criação da instância, foi instalado nela o docker e uma imagem do Apache foi executada. De posse do ip público, acesse-o utilizando um _browser_ ou execute o comando abaixo para ver o conteúdo da página padrão.
 
 ```shell
 $ MY_INSTANCE_IP=`terraform output my-instance-ip`
@@ -49,6 +56,14 @@ Você também pode accessar a instância via ssh:
 
 ```shell
 $ ssh -i <PATH_TO_PRIVATE_KEY> ubuntu@$MY_INSTANCE_IP
+```
+
+## Destruindo a instância
+
+Todo o provisionamento descrito realizado, incluindo instância e _security groups_ podem ser removidos com o comando:
+
+```shell
+$ terraform destroy
 ```
 
 # Descrição
