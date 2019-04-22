@@ -40,12 +40,12 @@ $ docker build . -f Dockerfile -t greeter-app
 
 ## Configuração do _Ingress Controller_
 
-Antes de fazer o _deploy_ da aplicação, é necessário adicionar ao cluster um _ingress controller_. Para isso, foi escolhido o [nginx](https://github.com/kubernetes/ingress-nginx). Esse processo pode ser feito aplicando um manifesto ou utilizando o HELM. Escolha a opção que preferir e execute os comandos dentro da pasta `kubernetes`.
+Antes de fazer o _deploy_ da aplicação, é necessário adicionar ao cluster um _ingress controller_. Para isso, foi escolhido o [nginx](https://github.com/kubernetes/ingress-nginx). Esse processo pode ser feito aplicando um manifesto ou utilizando o HELM. Escolha a opção que preferir e execute os comandos dentro da pasta `kubernetes`. Neste controlador é possível definir um _backend_ padrão no qual as rotas não definidas serão redirecionadas. Para a configuração feita com o HELM ele é criado automaticamente, por outro lado, ao se utilizar os manifestos, deve-se também aplicar um manifesto específico que faz o _deploy_ do _backend_ e cria um serviço para este, que é acessado pelo _ingress controller_.
 
 * ### k8s-manifests
 
 ```shell
-$ kubectl apply -f manifests/nginx.yaml
+$ kubectl apply -f manifests/nginx.yaml -f manifests/nginx-default-backend.yaml
 ```
 
 * ### helm
@@ -58,6 +58,43 @@ Devido a uma inconsistência da [documentação](https://kubernetes.github.io/in
 
 ```shell
 $ kubectl get svc -n ingress-nginx -o name | grep controller | xargs kubectl delete -n ingress-nginx
+```
+
+### Verificando o funcionamento do _ingress controller_
+
+Todos os recursos do controlador são provisionador no namespace _apps-ingress_. Esses recursos podem ser listados executando:
+
+```shell
+$ kubectl get all -n apps-ingress
+NAME                                                 READY   STATUS    RESTARTS   AGE
+pod/nginx-ingress-controller-2sprn                   1/1     Running   0          17m
+pod/nginx-ingress-default-backend-84dccf4b65-2sqb4   1/1     Running   0          17m
+
+NAME                                    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+service/nginx-ingress-default-backend   ClusterIP   10.105.36.203   <none>        80/TCP    17m
+
+NAME                                      DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+daemonset.apps/nginx-ingress-controller   1         1         1       1            1           <none>          17m
+
+NAME                                            READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/nginx-ingress-default-backend   1/1     1            1           17m
+
+NAME                                                       DESIRED   CURRENT   READY   AGE
+replicaset.apps/nginx-ingress-default-backend-84dccf4b65   1         1         1       17m
+```
+
+Uma vez que existe um _backend_ padrão associado ao controlador, pode-se testar o funcionamento deste acessando no _browser_ o IP da VM criada pelo minikube, uma vez que o controlador foi configurado no _namespace_ de rede da VM. Para obter este endereço, execute:
+
+```shell
+$ minikube ip
+192.168.99.100
+```
+
+Ou se preferir, ao invés de acessar no _browser_:
+
+```shell
+$ curl 192.168.99.100
+default backend - 404
 ```
 
 ## Fazendo o _deploy_ da aplicação
