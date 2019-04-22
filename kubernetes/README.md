@@ -40,7 +40,7 @@ $ docker build . -f Dockerfile -t greeter-app
 
 ## Configuração do _Ingress Controller_
 
-Antes de fazer o _deploy_ da aplicação, é necessário adicionar ao cluster um _ingress controller_. Para isso, foi escolhido o [nginx](https://github.com/kubernetes/ingress-nginx). Esse processo pode ser feito aplicando um manifesto ou utilizando o HELM. Escolha a opção que preferir e execute os comandos dentro da pasta `kubernetes`. Neste controlador é possível definir um _backend_ padrão no qual as rotas não definidas serão redirecionadas. Para a configuração feita com o HELM ele é criado automaticamente, por outro lado, ao se utilizar os manifestos, deve-se também aplicar um manifesto específico que faz o _deploy_ do _backend_ e cria um serviço para este, que é acessado pelo _ingress controller_.
+Antes de fazer o _deploy_ da aplicação, é necessário adicionar ao cluster um _ingress controller_. Para isso, foi escolhido o [nginx](https://github.com/kubernetes/ingress-nginx). Esse processo pode ser feito aplicando manifestos ou utilizando o HELM. Escolha a opção que preferir e execute os comandos dentro da pasta `kubernetes`. Neste controlador é possível definir um _backend_ padrão no qual as rotas não definidas serão redirecionadas. Para a configuração feita com o HELM ele é criado automaticamente, por outro lado, ao se utilizar os manifestos, deve-se também aplicar um manifesto específico que faz o _deploy_ do _backend_ e cria um serviço para este, que é acessado pelo _ingress controller_. Vale ressaltar que neste caso está sendo utilizado um _backend_ que retorna uma mensagem padrão, mas qualquer outro serviço poderia ser configurado como o _backend_ padrão para este _ingress controller_.
 
 * ### k8s-manifests
 
@@ -51,16 +51,16 @@ $ kubectl apply -f manifests/nginx.yaml -f manifests/nginx-default-backend.yaml
 * ### helm
 
 ```shell
-$ helm install stable/nginx-ingress -f helm-values/nginx.yaml  --version 1.5.0 --namespace ingress-nginx --name apps-ingress
+$ helm install stable/nginx-ingress -f helm-values/nginx.yaml  --version 1.5.0 --namespace apps-ingress --name apps-ingress
 ```
 
-Devido a uma inconsistência da [documentação](https://kubernetes.github.io/ingress-nginx/deploy/baremetal/#via-the-host-network) do nginx com os manifestos que são gerados, o serviço criado para o _ingress controller_ deve ser deletado. Mais detalhes [aqui](#observações).
+Devido a uma inconsistência da [documentação](https://kubernetes.github.io/ingress-nginx/deploy/baremetal/#via-the-host-network) do nginx com os manifestos que são gerados, o serviço criado para o _ingress controller_ deve ser deletado. Mais detalhes nas [observações](#observações).
 
 ```shell
-$ kubectl get svc -n ingress-nginx -o name | grep controller | xargs kubectl delete -n ingress-nginx
+$ kubectl get svc -n apps-ingress -o name | grep controller | xargs kubectl delete -n apps-ingress
 ```
 
-### Verificando o funcionamento do _ingress controller_
+### Verificando a configuração do _ingress controller_
 
 Todos os recursos do controlador são provisionador no namespace _apps-ingress_. Esses recursos podem ser listados executando:
 
@@ -113,16 +113,26 @@ $ ./scripts/run-manifests.bash
 $ ./scripts/run-helm.bash
 ```
 
-## Testando a aplicação
+### Verificando o funcionamento da aplicação
 
-Uma vez que foi feita a configuração do _ingress_ para acessar o serviço _http_ exposto pela aplicação externamente ao cluster, podemos utlizar o IP da VM criada pelo minikube para fazer isso. Este IP pode ser obtido com o seguinte comando:
+Os recursos criados após o _deploy_ da aplicação são alocados no _namespace_ `greeter-app-ns`. Assim como foi feito para o _ingress controller_, os recursos podem ser listados:
 
 ```shell
-$ minikube ip
-192.168.99.100
+$ kubectl get all -n greeter-app-ns
+NAME                              READY   STATUS    RESTARTS   AGE
+pod/greeter-app-cb6449577-6k5wt   1/1     Running   0          14s
+
+NAME                  TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+service/greeter-app   ClusterIP   10.100.44.178   <none>        80/TCP    14s
+
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/greeter-app   1/1     1            1           14s
+
+NAME                                    DESIRED   CURRENT   READY   AGE
+replicaset.apps/greeter-app-cb6449577   1         1         1       14s
 ```
 
-E então execute:
+Uma vez que foi feita a configuração do _ingress_ para acessar o serviço _http_ exposto pela aplicação externamente ao cluster. Isso pode ser feito utiliando o IP da VM do minikube, assim como foi feito para se testar o _ingress controller_. Foi adicionada as rotas da aplicação o caminho `/greeter`. Portanto, para testar a aplicação, execute o comando abaixo ou acesse esta URI no _browser_.
 
 ```shell
 $ curl http://192.168.99.100/greeter
@@ -145,7 +155,7 @@ greeter-app-5b5677b566-d2xm2   1/1     Running   1          4m
 
 ## Removendo a aplicação
 
-Dependendo do método que escolheu para fazer o _deploy_, execute o comando abaixo para remover a aplicação e todos seus recursos criados.
+Todos os recursos da aplicação são no _namespace_ _greeter-app-ns_, portanto ao excluí-lo, todos os recursos são deletados. Entretando, é possível realizar a remoção com os _scripts_ utilizados para fazer o _deploy_ da aplicação. Dependendo do método escolhido, execute o comando abaixo:
 
 * ### k8s-manifests
 
