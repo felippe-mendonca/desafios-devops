@@ -16,7 +16,7 @@ Dentro do diretório `terraform` deste repositório, execute:
 $ terraform init
 ```
 
-Este comando inicializará módulos e _plug-ins_ necessários para sua execução. Na próxima etapa serão pedidas variáveis de entrada que não possuem valores definidos por padrão. Recomenda-se que estas variáveis de entradas sejam colocadas em um arquivo com o nome de `terraform.tfvars` como o exemplo abaixo. O Terraform irá carregá-las automaticamente em todos os comandos que precisarem destas variáveis. Observe que a variável `ssh-ip-range` é uma lista, e esta foi definida com um endereço de IP com bloco CIDR `/32`, ou seja, apenas o _host_ com este endereço poderá acessar a instância via ssh. Se preferir, você pode definir um _range_ de endereços utilizando um bloco CIDR diferente de `/32`, ou ainda colocar uma lista de endereços e/ou _ranges_.
+Este comando inicializará módulos e _plug-ins_ necessários para sua execução. Na próxima etapa serão pedidas variáveis de entrada que não possuem valores definidos por padrão. Recomenda-se que estas variáveis de entradas sejam colocadas em um arquivo como no exemplo abaixo. Se este for nomeado por `terraform.tfvars`, ele será carregado automaticamente, ou, se preferir pode passar como parâmetro para os comendos que o requisitarem utilizando a opção `-var-file`. O Terraform irá então sobreescrever as variáveis colocadas neste arquivo. Observe que a variável `ssh-ip-range` é uma lista, e esta foi definida com um endereço de IP com bloco CIDR `/32`, ou seja, apenas o _host_ com este endereço poderá acessar a instância via ssh. Se preferir, você pode definir um _range_ de endereços utilizando um bloco CIDR diferente de `/32`, ou ainda colocar uma lista de endereços e/ou _ranges_.
 
 ```
 aws-region   = "us-east-1"
@@ -60,7 +60,7 @@ $ ssh -i <PATH_TO_PRIVATE_KEY> ubuntu@$MY_INSTANCE_IP
 
 ## Destruindo a instância
 
-Todo o provisionamento descrito realizado, incluindo instância e _security groups_ podem ser removidos com o comando:
+Todo o provisionamento descrito realizado, incluindo instância e _security groups_ podem ser removidos com o comando abaixo. Lembrando que se você definiu suas variáveis em um arquivo com nome diferente que `terraform.tfvars`, você deverá especificá-lo ao executar o comando.
 
 ```shell
 $ terraform destroy
