@@ -6,7 +6,7 @@ Para executar a resolução deste desafio, você precisará instalar o Terraform
 
 A AWS foi a escolhida e você precisará de uma chave de acesso para que o Terraform possa interagir com os serviços providos. Siga [essas](https://aws.amazon.com/pt/blogs/security/wheres-my-secret-access-key/) instruções para obter a chave. Além disso, leia [este](https://aws.amazon.com/pt/blogs/security/a-new-and-standardized-way-to-manage-credentials-in-the-aws-sdks/) guia para saber como gerenciar suas chaves.
 
-Além disso, será necessário um par de chaves cadastrado na região em que será criada a instância. Siga [essas](https://docs.aws.amazon.com/pt_br/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws) instruções caso você precise gerar e/ou importar suas chaves. É importante que a chave privada esteja na sua máquina em um caminho conhecido, pois esta será utilizada durante o processo de provisinamento.
+Além disso, será necessário um par de chaves cadastrado na região em que será criada a instância. Siga [essas](https://docs.aws.amazon.com/pt_br/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws) instruções caso você precise gerar e/ou importar suas chaves. É importante que a chave privada esteja na sua máquina em um caminho conhecido, pois esta será utilizada durante o processo de provisionamento.
 
 ## Criando sua instância
 
@@ -16,7 +16,7 @@ Dentro do diretório `terraform` deste repositório, execute:
 $ terraform init
 ```
 
-Este comando inicializará módulos e _plug-ins_ necessários para sua execução. Na próxima etapa serão pedidas variáveis de entrada que não possuem valores definidos por padrão. Recomenda-se que estas variáveis de entradas sejam colocadas em um arquivo como no exemplo abaixo. Se este for nomeado por `terraform.tfvars`, ele será carregado automaticamente, ou, se preferir pode passar como parâmetro para os comendos que o requisitarem utilizando a opção `-var-file`. O Terraform irá então sobreescrever as variáveis colocadas neste arquivo. Observe que a variável `ssh-ip-range` é uma lista, e esta foi definida com um endereço de IP com bloco CIDR `/32`, ou seja, apenas o _host_ com este endereço poderá acessar a instância via ssh. Se preferir, você pode definir um _range_ de endereços utilizando um bloco CIDR diferente de `/32`, ou ainda colocar uma lista de endereços e/ou _ranges_.
+Este comando inicializará módulos e _plug-ins_ necessários para sua execução. Na próxima etapa serão pedidas variáveis de entrada que não possuem valores definidos por padrão. Recomenda-se que estas variáveis de entradas sejam colocadas em um arquivo como no exemplo abaixo. Se este for nomeado por `terraform.tfvars`, ele será carregado automaticamente, ou, se preferir pode passar como parâmetro para os comandos que o requisitarem utilizando a opção `-var-file`. O Terraform irá então sobrescrever as variáveis colocadas neste arquivo. Observe que a variável `ssh-ip-range` é uma lista, e esta foi definida com um endereço de IP com bloco CIDR `/32`, ou seja, apenas o _host_ com este endereço poderá acessar a instância via ssh. Se preferir, você pode definir um _range_ de endereços utilizando um bloco CIDR diferente de `/32`, ou ainda colocar uma lista de endereços e/ou _ranges_.
 
 ```
 aws-region   = "us-east-1"
@@ -24,7 +24,7 @@ ssh-ip-range = ["200.137.67.10/32"]
 key-name     = "my_keypair"
 ```
 
-Agora, execute o comando abaixo para verificar quais serão as mudanças necessárias para realizar este provisionamento. Recomenda-se por salvar a saída deste comando em um arquivo, como mostrado no comando abaixo, para que seja utiliazado posteriormente.
+Agora, execute o comando abaixo para verificar quais serão as mudanças necessárias para realizar este provisionamento. Recomenda-se por salvar a saída deste comando em um arquivo, como mostrado no comando abaixo, para que seja utilizado posteriormente.
 
 ```shell
 $ terraform plan -out out.tfplan
@@ -52,7 +52,7 @@ $ curl $MY_INSTANCE_IP
 <html><body><h1>It works!</h1></body></html>
 ```
 
-Você também pode accessar a instância via ssh:
+Você também pode acessar a instância via ssh:
 
 ```shell
 $ ssh -i <PATH_TO_PRIVATE_KEY> ubuntu@$MY_INSTANCE_IP
@@ -70,7 +70,7 @@ $ terraform destroy
 
 ## Motivação
 
-Recursos de infraestrutura em nubvem devem sempre ser criados utilizando gerenciadores de configuração, tais como [Cloudformation](https://aws.amazon.com/cloudformation/), [Terraform](https://www.terraform.io/) ou [Ansible](https://www.ansible.com/), garantindo que todo recurso possa ser versionado e recriado de forma facilitada.
+Recursos de infraestrutura em nuvem devem sempre ser criados utilizando gerenciadores de configuração, tais como [Cloudformation](https://aws.amazon.com/cloudformation/), [Terraform](https://www.terraform.io/) ou [Ansible](https://www.ansible.com/), garantindo que todo recurso possa ser versionado e recriado de forma facilitada.
 
 ## Objetivo
 
